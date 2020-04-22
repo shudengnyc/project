@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Shu Deng" />
+
+
+<title>Analysis of Trend for NHANES Lab Test</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+<link rel="stylesheet" href="trend_analysis_2.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">My Website</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="mta_analysis_1.html">MTA analysis</a>
+</li>
+<li>
+  <a href="trend_analysis_2.html">NHANES analysis</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Analysis of Trend for NHANES Lab Test</h1>
+<h4 class="author">Shu Deng</h4>
+<h4 class="date">4/20/2020</h4>
+
+</div>
+
+
+<p>Data Scource: NHANES<br />
+Pre process : See Git</p>
+<pre class="r"><code>survey_df = read_csv(&quot;data/nhanes_99_11_raw.csv&quot;)
+survey_df$year_num = as.numeric(as.factor(survey_df$year) ) 
+survey_df$year_num_2 = (as.numeric(survey_df$year )- 1999)/2
+survey_df$year_fct = as.factor(survey_df$year) 
+# survey_df[,.N]
+# survey_df[,.N, by = year]
+# plot(survey_df[,.N, by = year])</code></pre>
+<hr />
+<p>Design survey objects using PSU, Strata and Weights.<br />
+Since we are not combining multiple years together, we use 2-Year medical examination weight.<br />
+However, we do have to subset design for subpopulation: Children</p>
+<pre class="r"><code># for all ages 
+nhanes_svy = 
+  svydesign(
+    id =  ~ SDMVPSU,
+    strata =  ~ SDMVSTRA,
+    weights =  ~ WTMEC2YR,
+    data = survey_df,
+    nest = TRUE
+  )
+
+# for children 
+nhanes_svy_kid = 
+  subset(nhanes_svy,
+         RIDAGEEX &lt;= 18*12 &amp; RIDAGEEX &gt;= 12*12
+    )</code></pre>
+<div id="compare-survey-vs-non-survey-weight" class="section level4">
+<h4>Compare Survey vs non-Survey weight</h4>
+<p><br/> <br/></p>
+<div>
+<div class="container123">
+<div class="fixed123">
+<p>For All Ages</p>
+<pre class="r"><code># weighted bar plot 
+svyby_adult_1  =
+  svyby(
+    formula = ~ LBDLDL,
+    by = ~ year_fct,
+    design = nhanes_svy,
+    FUN = svymean,
+    na.rm = TRUE,
+    keep.names = FALSE
+  )
+             
+ggplot(
+  data = svyby_adult_1, 
+  aes(x = year_fct, y = LBDLDL)
+  ) +
+  geom_col() +
+  geom_errorbar(
+    aes(ymin = LBDLDL - 2 * se, ymax = LBDLDL + 2 * se),
+    width = .2,
+    position = position_dodge(.9)
+  ) +
+  labs(y = &quot;Average Yearly LDL&quot;, x = &quot;&quot;, title = &quot;Weighted mean&quot;)</code></pre>
+<p><img src="trend_analysis_2_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<pre class="r"><code>### unweighted all age 
+survey_df %&gt;% 
+  group_by(year_fct) %&gt;% 
+  summarise(mean_ldl = mean(LBDLDL, na.rm = TRUE)) %&gt;% 
+  ggplot(
+    aes(x = year_fct, y = mean_ldl)
+    ) +
+    geom_col() +
+  labs(y = &quot;Average Yearly LDL&quot;, title = &quot;Unweighted/ Sample mean&quot;)</code></pre>
+<p><img src="trend_analysis_2_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
+</div>
+<div class="flex-item123">
+<p>For Children</p>
+<pre class="r"><code>##  --- -- --  weighted Children  -- -- -  -- -## 
+svyby_kid_1  =
+  svyby(
+    formula = ~ LBDLDL,
+    by = ~ year_fct,
+    design = nhanes_svy_kid,
+    FUN = svymean,
+    na.rm = TRUE,
+    keep.names = FALSE
+  )
+             
+ggplot(
+  data = svyby_kid_1, 
+  aes(x = year_fct, y = LBDLDL)
+  ) +
+  geom_col() +
+  geom_errorbar(
+    aes(ymin = LBDLDL - 2 * se, ymax = LBDLDL + 2 * se),
+    width = .2,
+    position = position_dodge(.9)
+  ) +
+  labs(y = &quot;Average Yearly LDL&quot;, x = &quot;&quot;, title = &quot;Weighted mean&quot;)</code></pre>
+<p><img src="trend_analysis_2_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="r"><code>### unweighted Children 
+
+survey_df %&gt;% 
+  filter(RIDAGEEX &lt;= 18*12 &amp; RIDAGEEX &gt;= 12*12) %&gt;% 
+  group_by(year_fct) %&gt;% 
+  summarise(mean_ldl = mean(LBDLDL, na.rm = TRUE)) %&gt;% 
+  ggplot(
+    aes(x = year_fct, y = mean_ldl)
+    ) +
+    geom_col() +
+  labs(y = &quot;Average Yearly LDL&quot;, title = &quot;Unweighted/ Sample mean&quot;)</code></pre>
+<p><img src="trend_analysis_2_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
+</div>
+</div>
+</div>
+</div>
+<div id="for-survey-data" class="section level4">
+<h4>For Survey Data</h4>
+<p>Year of the survey entered as a continuous variable, from 0 for NHANES 1999/2000 to 6 for NHANES 2011/2012.</p>
+<pre class="r"><code>box_plot_1 =
+  ggplot(data = survey_df,
+         mapping = aes(x = year_num_2, y = LBDLDL)) +
+  geom_boxplot(aes(group = year_num_2)) +
+  guides(color = FALSE) +
+  geom_smooth(method = &quot;lm&quot;,
+              se = TRUE,
+              mapping = aes(weight = WTMEC2YR)) +
+  labs(title = &quot;For All ages &quot;)
+
+
+box_plot_2 =
+  ggplot(data = filter(survey_df, RIDAGEEX &lt;= 18*12 &amp; RIDAGEEX &gt;= 12*12),
+       mapping = aes(x = year_num_2, y = LBDLDL)) +
+  geom_boxplot(aes(group = year_num_2)) +
+  guides(color = FALSE) +
+  geom_smooth(method = &quot;lm&quot;,
+              se = TRUE,
+              mapping = aes(weight = WTMEC2YR)) +
+  labs(title = &quot;For Children &quot;)
+
+box_plot_1 + box_plot_2</code></pre>
+<p><img src="trend_analysis_2_files/figure-html/unnamed-chunk-6-1.png" width="960" /></p>
+<p>Compare weighted mean of LDL. Linear &amp; Smooth</p>
+<pre class="r"><code>point_plot_1 = 
+  svyby( ~ LBDLDL , ~ year, nhanes_svy_kid, svymean, na.rm = TRUE) %&gt;%
+  ggplot(aes(x = year, y = LBDLDL)) +
+  geom_point() +
+  geom_errorbar(
+    aes(ymin = LBDLDL - 2 * se, ymax = LBDLDL + 2 * se),
+    width = .2,
+    position = position_dodge(.9)
+  )  +
+  geom_smooth(
+    data = filter(survey_df, RIDAGEEX &lt;= 18*12 &amp; RIDAGEEX &gt;= 12*12),
+    method = &quot;lm&quot;,
+    se = TRUE,
+    mapping = aes(x = year , y = LBDLDL, weight = WTMEC2YR)
+  ) +
+  labs(y = &quot;Average Yearly LDL&quot;)
+
+
+
+point_plot_2 = 
+svyby(~ LBDLDL , ~ year, nhanes_svy_kid, svymean, na.rm = TRUE) %&gt;%
+  ggplot(aes(x = year, y = LBDLDL)) +
+  geom_point() +
+  geom_errorbar(
+    aes(ymin = LBDLDL - 2 * se, ymax = LBDLDL + 2 * se),
+    width = .2,
+    position = position_dodge(.9)
+  )  +
+  geom_smooth(
+    data = filter(survey_df, RIDAGEEX &lt;= 18 * 12 &amp; RIDAGEEX &gt;= 12 * 12),
+    method = &quot;loess&quot;,
+    se = TRUE,
+    mapping = aes(x = year , y = LBDLDL, weight = WTMEC2YR)
+  ) +
+  labs(y = &quot;Average Yearly LDL&quot;)
+
+point_plot_1 + point_plot_2</code></pre>
+<p><img src="trend_analysis_2_files/figure-html/unnamed-chunk-7-1.png" width="960" /></p>
+<p>For four types of lipid analytes</p>
+<pre class="r"><code>yearly_avg_kid_ldl = svyby(~ LBDLDL , ~ year, nhanes_svy_kid, svymean, na.rm = TRUE)
+yearly_avg_kid_hdl = svyby(~ LBDHDD , ~ year, nhanes_svy_kid, svymean, na.rm = TRUE)
+yearly_avg_kid_tc = svyby(~ LBXTC , ~ year, nhanes_svy_kid, svymean, na.rm = TRUE)
+yearly_avg_kid_tg = svyby(~ LBXTR , ~ year, nhanes_svy_kid, svymean, na.rm = TRUE)
+
+yearly_avg_kid_ldl$type = &quot;LDL&quot;
+colnames(yearly_avg_kid_ldl)[2] = &quot;value&quot;
+
+yearly_avg_kid_hdl$type = &quot;HDL&quot;
+colnames(yearly_avg_kid_hdl)[2] = &quot;value&quot;
+
+yearly_avg_kid_tc$type = &quot;TC&quot;
+colnames(yearly_avg_kid_tc)[2] = &quot;value&quot;
+
+yearly_avg_kid_tg$type = &quot;TG&quot;
+colnames(yearly_avg_kid_tg)[2] = &quot;value&quot;
+
+yearly_avg_kid_combo = bind_rows(list(yearly_avg_kid_ldl,yearly_avg_kid_hdl,yearly_avg_kid_tc,yearly_avg_kid_tg))
+yearly_avg_kid_combo$year = as.numeric(yearly_avg_kid_combo$year)
+
+
+yearly_avg_kid_combo %&gt;% 
+  ggplot() + 
+  geom_line(aes(x = year , y = value , color = type)) +
+  geom_errorbar(aes(x = year, ymin = value - 2 * se, ymax = value + 2 * se, width = .1, color = type),position = position_dodge(.1)) +
+  labs(x = &quot;&quot; , y = &quot;Average Yearly Cholesterols Level&quot;, title = &quot;For Children&quot;)</code></pre>
+<p><img src="trend_analysis_2_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<pre class="r"><code># 2 X 2 bar plot
+ldl_bar_plot = 
+  yearly_avg_kid_ldl %&gt;% 
+  ggplot(aes(x = year, y = value)) +
+  geom_col() + 
+  geom_errorbar(aes(ymin = value - 2 * se, ymax = value + 2 * se, width = .1)) +
+  labs(x = &quot;&quot;, y = &quot;&quot;)
+
+tc_bar_plot = 
+  yearly_avg_kid_tc %&gt;% 
+  ggplot(aes(x = year, y = value)) +
+  geom_col() + 
+  geom_errorbar(aes(ymin = value - 2 * se, ymax = value + 2 * se, width = .1))+
+  labs(x = &quot;&quot;, y = &quot;&quot;)
+
+hdl_bar_plot = 
+  yearly_avg_kid_hdl %&gt;% 
+  ggplot(aes(x = year, y = value)) +
+  geom_col() + 
+  geom_errorbar(aes(ymin = value - 2 * se, ymax = value + 2 * se, width = .1))+
+  labs(x = &quot;&quot;, y = &quot;&quot;)
+
+tg_bar_plot = 
+  yearly_avg_kid_tg %&gt;% 
+  ggplot(aes(x = year, y = value)) +
+  geom_col() + 
+  geom_errorbar(aes(ymin = value - 2 * se, ymax = value + 2 * se, width = .1))+
+  labs(x = &quot;&quot;, y = &quot;&quot;)
+
+
+
+
+
+figure &lt;- ggarrange(tc_bar_plot, ldl_bar_plot, hdl_bar_plot, tg_bar_plot, labels = c(&quot;TC&quot;, &quot;LDL&quot;, &quot;HDL&quot;,&quot;TG&quot;))
+annotate_figure(figure,
+                # top = text_grob(&quot;For Children&quot;, color = &quot;black&quot;, face = &quot;bold&quot;, size = 12),
+                # bottom = text_grob(&quot;Data source: \n ToothGrowth data set&quot;, color = &quot;black&quot;,
+                #                    hjust = 1, x = 1, face = &quot;italic&quot;, size = 10),
+                left = text_grob(&quot;Yearly Average Level (mg/dL) For Children&quot;, color = &quot;black&quot;, rot = 90),
+                # right = &quot;I&#39;m done, thanks :-)!&quot;,
+                fig.lab = &quot;&quot;, fig.lab.face = &quot;bold&quot;
+)</code></pre>
+<p><img src="trend_analysis_2_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<pre class="r"><code># Trend test for all analytes 
+md_ldl &lt;- svyglm(LBDLDL ~ year_num_2 + as.factor(RIDRETH1) + as.factor(RIAGENDR) + RIDAGEEX, design = nhanes_svy_kid)
+md_hdl &lt;- svyglm(LBDHDD ~ year_num_2 +as.factor( RIDRETH1) + as.factor(RIAGENDR) + RIDAGEEX, design = nhanes_svy_kid)
+md_tg  &lt;- svyglm(log(LBXTR) ~ year_num_2 + as.factor(RIDRETH1) + as.factor(RIAGENDR) + RIDAGEEX, design = nhanes_svy_kid)
+md_tc  &lt;- svyglm(LBXTC ~ year_num_2 + as.factor(RIDRETH1) + as.factor(RIAGENDR) + RIDAGEEX, design = nhanes_svy_kid)</code></pre>
+</div>
+<div id="linear-trend-analysis-result" class="section level4">
+<h4>Linear trend analysis result</h4>
+<pre class="r"><code>trend_res = 
+  bind_rows(
+  list(LDL = tidy(md_ldl)[2, ], 
+       &quot;HDL&quot; = tidy(md_hdl)[2, ], 
+       TC  = tidy(md_tc)[2, ], 
+       &quot;*TG&quot;  = tidy(md_tg)[2, ]),.id = &quot;analyte&quot;) 
+ knitr::kable(trend_res[,-2])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">analyte</th>
+<th align="right">estimate</th>
+<th align="right">std.error</th>
+<th align="right">statistic</th>
+<th align="right">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">LDL</td>
+<td align="right">-0.9453987</td>
+<td align="right">0.2766756</td>
+<td align="right">-3.416994</td>
+<td align="right">0.0009137</td>
+</tr>
+<tr class="even">
+<td align="left">HDL</td>
+<td align="right">0.4321529</td>
+<td align="right">0.0728382</td>
+<td align="right">5.933052</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">TC</td>
+<td align="right">-0.8897557</td>
+<td align="right">0.2354110</td>
+<td align="right">-3.779585</td>
+<td align="right">0.0002660</td>
+</tr>
+<tr class="even">
+<td align="left">*TG</td>
+<td align="right">-0.0257170</td>
+<td align="right">0.0061622</td>
+<td align="right">-4.173332</td>
+<td align="right">0.0000637</td>
+</tr>
+</tbody>
+</table>
+<p>*TG is log transformed due to non gaussian distritbution</p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

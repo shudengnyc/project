@@ -1,0 +1,10 @@
+
+.container123{
+    display:flex;
+}
+.fixed123{
+    width: 73.5%;
+}
+.flex-item123{
+    flex-grow: 1;
+}

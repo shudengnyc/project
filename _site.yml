@@ -1,0 +1,16 @@
+name: "my-website"
+output_dir: "site"
+navbar:
+  title: "My Website"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "MTA analysis"
+      href: mta_analysis_1.html
+    - text: "NHANES analysis"
+      href: trend_analysis_2.html
+output:
+  html_document:
+    theme: cosmo
+    highlight: textmate
+    css: styles.css
