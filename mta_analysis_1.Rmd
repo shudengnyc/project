@@ -10,7 +10,7 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 library(tidyverse)
 library(data.table)
 library(lubridate)
@@ -163,7 +163,7 @@ plot_ly(
 
 ```{r include=FALSE}
 # covid 19 data  from https://www1.nyc.gov/site/doh/covid/covid-19-data.page
-ny_covid = fread("../mta_data/nyc_covid_19.csv") %>% janitor::clean_names()
+ny_covid = fread("../mta_data/nyc_covid_4_22.csv") %>% janitor::clean_names()
 ny_covid$date = mdy(ny_covid$date_of_interest)
 ny_covid$scaled_case = scale(ny_covid$cases)
 ny_covid$cumulative_case = cumsum(ny_covid$cases)
@@ -423,7 +423,87 @@ plot_ly(data = station_data_3) %>%
 
 
 
+```
 
+
+```{r}
+
+plot_ly(data = station_data_3) %>%
+  add_trace(
+    x = ~ date,
+    y = ~ total_in_day,
+    type = 'scatter',
+    mode = 'markers+lines',
+    name = 'Weekly MTA Riderships',
+    line = list(
+      color = 'rgb(205, 12, 24)',
+      width = 4,
+      shape = "spline"
+    ),
+    opacity = 0.75,
+    transforms = list(
+      list(
+        type = 'aggregate',
+        groups = station_data_3$week_seq,
+        aggregations = list(list(
+          target = 'y',
+          func = 'avg',
+          enabled = T
+        ))
+      )
+    )
+  ) %>%
+  add_trace(
+    data = ny_covid,
+    x = ~ date,
+    y = ~ cumulative_case,
+    yaxis = "y2",
+    type = 'scatter',
+    mode = 'markers+lines',
+    name = 'NYC COVID-19 <br>Cumulative Cases',
+    line = list(# color = 'rgb(205, 12, 24)',
+      width = 4,
+      shape = "spline"),
+    marker = list(color = 'RGB(64, 154, 203)')
+  ) %>%
+  add_trace(
+    data = ny_covid,
+    x = ~ date -14,
+    y = ~ cumulative_case,
+    yaxis = "y2",
+    type = 'scatter',
+    mode = 'markers+lines',
+    name = 'Shift 14 Days Back',
+    line = list(# color = 'rgb(205, 12, 24)',
+      width = 4,
+      shape = "spline"),
+    marker = list(color = 'RGB(64, 154, 203)')
+  ) %>%
+  add_segments(
+    x = '2020-03-20',
+    xend = '2020-04-2',
+    y = 2600000,
+    yend = 2600000,
+    name = "Shift 14 Days Back",
+    line = list(
+      dash = 'dashdot',
+      width = 3,
+      color = "MediumPurple"
+    )
+  ) %>%
+  layout(
+    title = "MTA vs COVID-19",
+    legend = list(x = 0.05, y = 0.5),
+    xaxis = list(title = ""),
+    yaxis = list(title = "AVG Weekly MTA Riderships"),
+    yaxis2 = list(
+      tickfont = list(color = "#d62728"),
+      overlaying = "y",
+      side = "right",
+      title = "14 Days"
+    ),
+    margin = list(r = 120)
+  )
 ```
 
 ### NYC residents movement 
