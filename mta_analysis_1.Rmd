@@ -9,6 +9,18 @@ editor_options:
   chunk_output_type: inline
 ---
 
+<style>
+    .container123{
+        display:flex;
+    }
+    .fixed123{
+        width: 73.5%;
+    }
+    .flex-item123{
+        flex-grow: 1;
+    }
+</style>
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 library(tidyverse)
@@ -23,7 +35,7 @@ theme_set(theme_bw())
 
 ```{r include=FALSE,cache=F}
 # process data 
-subway_raw = fread("../mta_data/mta_data_feb_to_april_18.csv")
+subway_raw = fread("../mta_data/mta_data_feb_to_may_30.csv")
 subway_lag = setorder(subway_raw, date)
 subway_lag[, ppl_entered := entries - shift(entries), by = .(c_a,unit, scp)]
 subway_lag[, ppl_exited := exits - shift(exits), by = .(c_a,unit, scp)]
@@ -163,7 +175,8 @@ plot_ly(
 
 ```{r include=FALSE}
 # covid 19 data  from https://www1.nyc.gov/site/doh/covid/covid-19-data.page
-ny_covid = fread("../mta_data/nyc_covid_4_22.csv") %>% janitor::clean_names()
+
+ny_covid = fread("../mta_data/nyc_covid_6_3.csv") %>% janitor::clean_names()
 ny_covid$date = mdy(ny_covid$date_of_interest)
 ny_covid$scaled_case = scale(ny_covid$cases)
 ny_covid$cumulative_case = cumsum(ny_covid$cases)
@@ -231,7 +244,8 @@ plot_ly(data = station_data_3) %>%
 ```
 
 ```{r message=FALSE, warning=FALSE}
-plot_ly(data = station_data_3) %>%
+
+  plot_ly(data = station_data_3) %>%
   add_trace(
     x = ~ date,
     y = ~ total_in_day,
@@ -354,7 +368,20 @@ plot_ly(data = station_data_3) %>%
     legend = list(orientation = "v")
   )
 ```
+
+
 * Using cumulative confirmed cases 
+
+<br/>
+<br/>
+
+
+<div>
+
+<div class="container123">
+<div class="fixed123">
+
+
 ```{r  message=FALSE, warning=FALSE}
 
 plot_ly(data = station_data_3) %>%
@@ -425,6 +452,8 @@ plot_ly(data = station_data_3) %>%
 
 ```
 
+</div>
+<div class="flex-item123">
 
 ```{r}
 
@@ -484,7 +513,7 @@ plot_ly(data = station_data_3) %>%
     xend = '2020-04-2',
     y = 2600000,
     yend = 2600000,
-    name = "Shift 14 Days Back",
+    name = "14 Days",
     line = list(
       dash = 'dashdot',
       width = 3,
@@ -500,11 +529,16 @@ plot_ly(data = station_data_3) %>%
       tickfont = list(color = "#d62728"),
       overlaying = "y",
       side = "right",
-      title = "14 Days"
+      title = "Cumulative COVID-19 Cases"
     ),
     margin = list(r = 120)
   )
 ```
+</div>
+</div>
+</div>
+
+
 
 ### NYC residents movement 
 How people move in NYC by subway, <span style="color:red"> **Red** </span>  means people leave station <span style="color:blue"> **blue** </span> means people go in. 
@@ -545,6 +579,8 @@ plot_ly(
 ```{r eval=FALSE, include=FALSE}
 #  save plot
 # station_data_march$total_flow %>% quantile()
+
+# set inflow factor level which influencing color 
 station_data_march$total_flow_mod = cut(
   station_data_march$total_flow,
   breaks = c(-Inf, 100, 300, 600, 1000, 3000, 6000, 10000, Inf) ,
@@ -573,4 +609,64 @@ plot_ly(
 # htmlwidgets::saveWidget(p, "test_1.html")
 
 ```
+
+
+```{r eval=FALSE, include=FALSE}
+nycounties <- rgdal::readOGR("http://data.beta.nyc//dataset/0ff93d2d-90ba-457c-9f7e-39e47bf2ac5f/resource/35dd04fb-81b3-479b-a074-a27a37888ce7/download/d085e2f8d0b54d4590b1e7d1f35594c1pediacitiesnycneighborhoods.geojson")
+nyc_neighborhoods_df <- broom::tidy(nycounties)
+nyc_neighborhoods_df <- filter(nyc_neighborhoods_df,  long > -74.05)
+
+nyc_map_shape = ggplot() +
+  geom_polygon(
+    data = nyc_neighborhoods_df,
+    aes(x = long, y = lat, group = group), alpha = 0.1,
+    fill = "white",
+    color = "black"
+  ) +
+  coord_map() + theme(
+    axis.line = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    legend.position = "none",
+    panel.background = element_blank(),
+    panel.border = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    plot.background = element_blank()
+  )
+
+nyc_map_shape = ggplotly(nyc_map_shape)
+
+
+
+p = nyc_map_polygon %>%
+  add_trace(
+    data = station_data_march,
+    type = "scatter",
+    mode = "markers",
+    x = ~ station_longitude ,
+    y = ~ station_latitude,
+    marker = list(size = ~ log((total_flow) + 0.1)),
+    color = ~ in_out,
+    colors = ~ c("grey", "blue", "red"),
+    ids = ~ station_seq ,
+    frame = ~ timeCut
+  ) %>%
+  layout(xaxis = Noax, yaxis = Noax) 
+
+p %>%
+  animation_slider(currentvalue = list(
+    prefix = "Time ",
+    font = list(color = "red"),
+    xanchor = "center"
+  ))
+```
+
+
+
+
+
 

@@ -13,3 +13,4 @@ RnwWeave: Sweave
 LaTeX: pdfLaTeX
 
 BuildType: Website
+WebsitePath: ~/OneDrive - cumc.columbia.edu/data_projects/2020_projects/project
