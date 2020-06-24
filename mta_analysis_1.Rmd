@@ -35,7 +35,7 @@ theme_set(theme_bw())
 
 ```{r include=FALSE,cache=F}
 # process data 
-subway_raw = fread("../mta_data/mta_data_feb_to_may_30.csv")
+subway_raw = fread("../mta_data/mta_data_feb_to_june_20.csv")
 subway_lag = setorder(subway_raw, date)
 subway_lag[, ppl_entered := entries - shift(entries), by = .(c_a,unit, scp)]
 subway_lag[, ppl_exited := exits - shift(exits), by = .(c_a,unit, scp)]
@@ -176,7 +176,7 @@ plot_ly(
 ```{r include=FALSE}
 # covid 19 data  from https://www1.nyc.gov/site/doh/covid/covid-19-data.page
 
-ny_covid = fread("../mta_data/nyc_covid_6_3.csv") %>% janitor::clean_names()
+ny_covid = fread("../mta_data/nyc_covid_6_20.csv") %>% janitor::clean_names()
 ny_covid$date = mdy(ny_covid$date_of_interest)
 ny_covid$scaled_case = scale(ny_covid$cases)
 ny_covid$cumulative_case = cumsum(ny_covid$cases)
